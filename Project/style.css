@@ -1,0 +1,309 @@
+:root {
+    /* "Cosmic" Color Palette */
+    --gradient-start: #2E0854; /* Deep Purple */
+    --gradient-end: #480562; /* Royal Purple */
+    --board-bg: rgba(255, 255, 255, 0.1);
+    --cell-bg: rgba(255, 255, 255, 0.15);
+    --cell-hover-bg: rgba(255, 255, 255, 0.25);
+    --text-color: #f0f0f0;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    
+    /* Vibrant Neon-like colors for X and O */
+    --x-color: #F022A8; /* Electric Pink */
+    --o-color: #0ABCF9; /* Bright Cyan */
+    --glow-color: rgba(255, 255, 255, 0.7);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    background-attachment: fixed;
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+.title {
+    font-size: 4.5rem;
+    font-weight: 700;
+    text-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--shadow-color);
+    animation: fadeInDown 1s ease-in-out;
+    letter-spacing: 2px;
+}
+
+button {
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* --- Welcome Screen --- */
+.welcome-screen {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.mode-selection button, #start-game-btn {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    cursor: pointer;
+    background: var(--board-bg);
+    color: var(--text-color);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+.mode-selection button:hover, #start-game-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px var(--glow-color), 0 6px 25px var(--shadow-color);
+}
+
+.name-inputs input {
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    font-size: 1rem;
+    color: var(--text-color);
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.name-inputs input:focus {
+    outline: none;
+    box-shadow: 0 0 10px var(--o-color);
+}
+
+.name-inputs input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Game Container & Scoreboard --- */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+
+.scoreboard-card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    background: var(--board-bg);
+    padding: 1.2rem 2rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 32px 0 var(--shadow-color);
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.score-item {
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+}
+
+.turn-indicator {
+    margin-top: 1rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-shadow: 0 0 5px var(--glow-color);
+    animation: fadeIn 1s;
+}
+
+.active-player {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 15px var(--glow-color);
+}
+.active-player span#player1-name { color: var(--x-color); }
+.active-player span#player2-name { color: var(--o-color); }
+
+/* --- Board & Cells --- */
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: clamp(300px, 90vw, 450px);
+    height: clamp(300px, 90vw, 450px);
+    background: transparent;
+    padding: 12px;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--board-bg);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 40px var(--shadow-color);
+    animation: zoomIn 0.7s ease-out;
+}
+
+.cell {
+    position: relative; /* Crucial for positioning the marks inside */
+    background: var(--cell-bg);
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.cell:hover {
+    background-color: var(--cell-hover-bg);
+}
+
+/* --- New Architecture for Marks --- */
+
+/* 1. Create containers for BOTH 'X' and 'O' in every cell from the start */
+.cell::before,
+.cell::after {
+    position: absolute; /* Take them out of the layout flow */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-size: clamp(2.5rem, 15vw, 5rem);
+    font-weight: 700;
+    
+    /* 2. Make them invisible by default */
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+/* 3. Define the content and style for each mark */
+.cell::before {
+    content: 'X';
+    color: var(--x-color);
+    text-shadow: 0 0 15px var(--x-color);
+}
+
+.cell::after {
+    content: 'O';
+    color: var(--o-color);
+    text-shadow: 0 0 15px var(--o-color);
+}
+
+/* 4. When a class is added, simply make the correct pre-existing mark visible */
+.cell.x::before {
+    opacity: 1;
+}
+
+.cell.o::after {
+    opacity: 1;
+}
+
+.cell.x, .cell.o {
+    cursor: not-allowed;
+}
+
+.winning-cell {
+    animation: pulse 0.8s infinite;
+}
+
+/* --- Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: fadeIn 0.4s forwards;
+}
+
+.modal-content {
+    background: var(--board-bg);
+    padding: 3rem 4rem;
+    border-radius: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    box-shadow: 0 8px 40px var(--shadow-color);
+    animation: popIn 0.5s ease-out forwards;
+}
+
+.modal-content p {
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-shadow: 0 0 5px var(--glow-color);
+}
+
+.modal-buttons button {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    cursor: pointer;
+    background: var(--cell-bg);
+    color: var(--text-color);
+}
+
+.modal-buttons button:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 10px var(--glow-color);
+}
+
+/* --- Utility & Animations --- */
+.hidden {
+    display: none !important;
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); box-shadow: none; }
+    50% { transform: scale(1.05); box-shadow: 0 0 20px var(--glow-color); }
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+    .title { font-size: 3.5rem; }
+    .scoreboard-card { flex-direction: column; gap: 0.8rem; padding: 1rem; }
+    .score-item { font-size: 1.1rem; }
+    .turn-indicator { font-size: 1.3rem; }
+    .modal-content { padding: 2rem; width: 90%; }
+    .modal-content p { font-size: 1.8rem; }
+    .modal-buttons { display: flex; flex-direction: column; gap: 1rem; }
+}
